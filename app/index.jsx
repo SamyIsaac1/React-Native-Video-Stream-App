@@ -14,6 +14,7 @@ export default App = () => {
   const { isLoading, isLoggedIn } = useGlobalContext();
 
   if (!isLoading && isLoggedIn) return <Redirect href='/home'></Redirect>;
+
   return (
     <SafeAreaView className='bg-primary h-full'>
       <ScrollView
