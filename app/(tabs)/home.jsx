@@ -9,11 +9,12 @@ import { EmptyState, SearchInput, Trending, VideoCard } from '../../components';
 import { getAllPosts, getLatestPosts } from '../../lib/appwrite';
 import { images } from '../../constants';
 import useAppwrite from '../../lib/useAppwrite';
+import { useGlobalContext } from '../../context/GlobalProvider';
 
 const Home = () => {
   const { data: posts, refetch } = useAppwrite(getAllPosts);
   const { data: latestPosts } = useAppwrite(getLatestPosts);
-
+  const { user } = useGlobalContext();
   const [refreshing, setRefreshing] = useState(false);
 
   async function onRefresh() {
@@ -41,11 +42,11 @@ const Home = () => {
             <View className='justify-between items-start flex-row mb-6'>
               <View>
                 <Text className='font-pmedium text-sm text-gray-100'>
-                  welcome back
+                  welcome back,
                 </Text>
 
                 <Text className='font-pmedium text-2xl text-white'>
-                  JS Mastery
+                  {user.username}
                 </Text>
               </View>
 
