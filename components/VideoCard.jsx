@@ -1,14 +1,38 @@
 import { useState } from 'react';
 import { ResizeMode, Video } from 'expo-av';
-import { View, Text, TouchableOpacity, Image } from 'react-native';
+import { View, Text, TouchableOpacity, Image, Alert } from 'react-native';
 
 import { icons } from '../constants';
+import { updateFavories } from '../lib/appwrite';
+import { useGlobalContext } from '../context/GlobalProvider';
 
-const VideoCard = ({ title, creator, avatar, thumbnail, video }) => {
+const VideoCard = ({ id, title, creator, avatar, thumbnail, video }) => {
+  const { user, setUser } = useGlobalContext();
   const [play, setPlay] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const favoritesIds = user.favorites.map((item) => item.$id);
+  const isInclude = favoritesIds.includes(id);
 
+  async function toggleFavorites() {
+    try {
+      setIsLoading(true);
+
+      const result = await updateFavories(
+        user,
+        isInclude
+          ? favoritesIds.filter((favId) => favId !== id)
+          : [...favoritesIds, id]
+      );
+
+      setUser(result);
+    } catch (error) {
+      Alert.alert('Error', error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  }
   return (
-    <View className='flex flex-col items-center px-4 mb-14'>
+    <View className='relative flex flex-col items-center px-4 mb-14'>
       <View className='flex flex-row gap-3 items-start'>
         <View className='flex justify-center items-center flex-row flex-1'>
           <View className='w-[46px] h-[46px] rounded-lg border border-secondary flex justify-center items-center p-0.5'>
@@ -72,6 +96,18 @@ const VideoCard = ({ title, creator, avatar, thumbnail, video }) => {
           />
         </TouchableOpacity>
       )}
+
+      <TouchableOpacity
+        className='absolute right-8 top-20 z-10'
+        activeOpacity={0.7}
+        onPress={toggleFavorites}
+      >
+        {isLoading ? (
+          <Text>⭕</Text>
+        ) : (
+          <Text className='text-white'>{isInclude ? '❤' : '🤍'}</Text>
+        )}
+      </TouchableOpacity>
     </View>
   );
 };
